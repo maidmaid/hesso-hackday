@@ -10,22 +10,34 @@
     <link href='css/metricsgraphics.css' rel='stylesheet' type='text/css'>
     <link href='css/metricsgraphics-demo.css' rel='stylesheet' type='text/css'>
     <style>
-        #stats { position: relative; }
+        #stats { 
+			position: relative; 
+			width: 1200px;
+			height: 600;
+			margin:0 auto;
+		}
         #graphics {
             width: 1200px;
             margin: 50px auto;
         }
         #toolbar {
             position: absolute;
-            top: 25%;
-            left: 60%;
+            top: 20%;
+            right: 0;
         }
+		.active_datapoint {
+			font-size:14px;
+		}
         tr, td { padding: 5px; }
         .label { font-size: 15px !important; }
+		
+		.active {
+		background:#efefef;
+		}
     </style>
 
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
-    <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js' charset='utf-8'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.13/d3.min.js' charset='utf-8'></script>
     <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>
     <script src='js/metricsgraphics.min.js'></script>
 </head>
@@ -35,7 +47,7 @@
         <div id='toolbar'>
             <table>
                 <tr>
-                    <td><button class="btn btn-default" onclick="render('1974h')">1974 Elites hommes</button></td>
+                    <td><button class="btn btn-default active" onclick="render('1974h')">1974 Elites hommes</button></td>
                     <td></td>
                 </tr>
                 <tr>
@@ -60,14 +72,26 @@
     </div>
     <script>
         var g;
+        
+        title = '1974 Elites hommes';
+        $('.btn').click(function() {
+
+                $('.btn').removeClass('active');
+
+                title = $(this).html();
+                $(this).addClass('active');
+        });
+
         function render(category)
         {
             g = d3.csv('data/zs.csv', function(data) {
                 data_graphic({
-                    title: "Sierre/Zinal",
+                    title: title,
                     description: "Ecarts temporels par rapport au meilleur temps",
                     missing_is_zero: true,
                     data: data,
+                    chart_type: 'histogram',
+                    binned:true,
                     width: 1200,
                     height: 600,
                     target: '#graphics',
@@ -79,10 +103,10 @@
                     left: 100,
                     x_label: "Ecart temporel par rapport au vainqueur",
                     xax_count: 25,
-                    xax_format: function(d) {
+                    xax_format: function(d) { // Ne fonctionne pas avec les graphiques de type "Histogram" ?
                         var h = Math.floor(d / 60);
                         var m = d % 60;
-                        return h + ':' + m;
+                        return h + 'h' + m;
                     },
                     y_label: "Nombre de participants",
                     yax_count: 8
@@ -90,6 +114,9 @@
             })
         }
         render('1974h');
+        
+        
+        text
     </script>
 </body>
 </html>
