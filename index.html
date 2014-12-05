@@ -41,7 +41,7 @@
         <div id='toolbar'>
             <table>
                 <tr>
-                    <td><button class="btn btn-default" data-category="1974h">1974 Elites hommes</button></td>
+                    <td><button class="btn btn-default active" data-category="1974h">1974 Elites hommes</button></td>
                     <td></td>
                 </tr>
                 <tr>
@@ -65,11 +65,17 @@
         <div id='graphics'></div>
     </div>
     <script>
-        var g;
+        var g, play;
 
-        $('.btn').click(function() {
+        $('.btn').click(function(e) {
             var $this = $(this);
             var $active = $('.btn.active');
+
+            // Stop autoplay if user clicks
+            if(e.hasOwnProperty('originalEvent') && isPlayed())
+            {
+                stop();
+            }
 
             // active
             $active.removeClass('active');
@@ -81,9 +87,8 @@
             render(category, title);
         });
 
-        function render(category, title)
-        {
-            g = d3.csv('data/zs.csv', function(data) {
+        function render(category, title) {
+            g = d3.csv('data/zs.csv', function (data) {
                 data_graphic({
                     title: title,
                     description: "Ecarts temporels par rapport au meilleur temps",
@@ -100,12 +105,12 @@
                     left: 100,
                     x_label: "Ecart temporel par rapport au vainqueur",
                     xax_count: 25,
-                    xax_format: function(d) { // Ne fonctionne pas avec les graphiques de type "Histogram" ?
+                    xax_format: function (d) { // Ne fonctionne pas avec les graphiques de type "Histogram" ?
                         var h = Math.floor(d / 60);
                         var m = d % 60;
                         return h === 0
-                            ? m + "'"
-                            : h + 'h' + m + "'";
+                                ? m + "'"
+                                : h + 'h' + m + "'";
                     },
                     y_label: "Nombre de participants",
                     x_extended_ticks: true,
@@ -114,7 +119,28 @@
             })
         }
 
-        $('.btn').first().click();
+        function play() {
+             play = setInterval(function() {
+                var $btns = $('.btn');
+                var $active = $('.btn.active').get(0);
+                var $next = $($btns[($.inArray($active, $btns) + 1) % $btns.length]);
+                $next.trigger('click');
+            }, 3000);
+        }
+
+        function stop() {
+            clearInterval(play);
+            play = false;
+        }
+
+        function isPlayed() {
+            return play !== false;
+        }
+
+        $(document).ready(function() {
+            $('.btn').first().click();
+            play();
+        });
     </script>
 </body>
 </html>
