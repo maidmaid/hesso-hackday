@@ -1,41 +1,35 @@
 <html lang='fr'>
 <head>
     <title>Sierre Zinal</title>
-
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
     <link href='https://fonts.googleapis.com/css?family=PT+Serif:400,700,400italic' rel='stylesheet' type='text/css'>
     <link href='https://netdna.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.css' rel='stylesheet' type='text/css'>
     <link href='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css' rel='stylesheet' type='text/css'>
-
     <link href='css/metricsgraphics.css' rel='stylesheet' type='text/css'>
-    <link href='css/metricsgraphics-demo.css' rel='stylesheet' type='text/css'>
     <style>
         #stats { 
 			position: relative; 
 			width: 1200px;
-			height: 600;
+			height: 600px;
 			margin:0 auto;
 		}
         #graphics {
             width: 1200px;
-            margin: 50px auto;
+            margin: 100px auto;
         }
         #toolbar {
             position: absolute;
             top: 20%;
-            right: 0;
+            right: 5%;
         }
 		.active_datapoint {
 			font-size:14px;
 		}
         tr, td { padding: 5px; }
         .label { font-size: 15px !important; }
-		
-		.active {
-		background:#efefef;
-		}
+		.active {  background:#efefef; }
+        .extended-x-ticks, .extended-y-ticks { stroke: #BAB0B0 !important; }
     </style>
-
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js'></script>
     <script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.4.13/d3.min.js' charset='utf-8'></script>
     <script src='https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js'></script>
@@ -47,24 +41,24 @@
         <div id='toolbar'>
             <table>
                 <tr>
-                    <td><button class="btn btn-default active" onclick="render('1974h')">1974 Elites hommes</button></td>
+                    <td><button class="btn btn-default" data-category="1974h">1974 Elites hommes</button></td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td><button class="btn btn-default"onclick="render('1984h')">1984 Elites hommes</button></td>
+                    <td><button class="btn btn-default" data-category="1984h">1984 Elites hommes</button></td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td><button class="btn btn-default"onclick="render('1994h')">1994 Elites hommes</button></td>
+                    <td><button class="btn btn-default" data-category="1994h">1994 Elites hommes</button></td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td><button class="btn btn-default" onclick="render('2004h')">2004 Elites hommes</button></td>
+                    <td><button class="btn btn-default" data-category="2004h">2004 Elites hommes</button></td>
                     <td></td>
                 </tr>
                 <tr>
-                    <td><button class="btn btn-default" onclick="render('2011h')">2011 Elites hommes</button></td>
-                    <td><button class="btn btn-default" onclick="render('2011f')">2011 Elites femmes</button></td>
+                    <td><button class="btn btn-default" data-category="2011h">2011 Elites hommes</button></td>
+                    <td><button class="btn btn-default" data-category="2011f">2011 Elites femmes</button></td>
                 </tr>
             </table>
         </div>
@@ -72,17 +66,22 @@
     </div>
     <script>
         var g;
-        
-        title = '1974 Elites hommes';
+
         $('.btn').click(function() {
+            var $this = $(this);
+            var $active = $('.btn.active');
 
-                $('.btn').removeClass('active');
+            // active
+            $active.removeClass('active');
+            $this.addClass('active');
 
-                title = $(this).html();
-                $(this).addClass('active');
+            // render
+            var category = $this.data('category');
+            var title = $this.html();
+            render(category, title);
         });
 
-        function render(category)
+        function render(category, title)
         {
             g = d3.csv('data/zs.csv', function(data) {
                 data_graphic({
@@ -90,8 +89,6 @@
                     description: "Ecarts temporels par rapport au meilleur temps",
                     missing_is_zero: true,
                     data: data,
-                    chart_type: 'histogram',
-                    binned:true,
                     width: 1200,
                     height: 600,
                     target: '#graphics',
@@ -106,17 +103,18 @@
                     xax_format: function(d) { // Ne fonctionne pas avec les graphiques de type "Histogram" ?
                         var h = Math.floor(d / 60);
                         var m = d % 60;
-                        return h + 'h' + m;
+                        return h === 0
+                            ? m + "'"
+                            : h + 'h' + m + "'";
                     },
                     y_label: "Nombre de participants",
+                    x_extended_ticks: true,
                     yax_count: 8
                 })
             })
         }
-        render('1974h');
-        
-        
-        text
+
+        $('.btn').first().click();
     </script>
 </body>
 </html>
